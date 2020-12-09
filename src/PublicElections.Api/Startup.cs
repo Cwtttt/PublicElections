@@ -7,9 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using PublicElections.Api.Extensions;
+using PublicElections.Domain.Settings;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Ioc;
 using PublicElections.Infrastructure.Options;
+using System;
 
 namespace PublicElections.Api
 {
@@ -38,6 +40,7 @@ namespace PublicElections.Api
 
             services.AddOptions<MailSettings>().Bind(Configuration.GetSection("MailSettings"));
             services.AddOptions<WebSettings>().Bind(Configuration.GetSection("WebSettings"));
+            services.AddOptions<AdminSettings>().Bind(Configuration.GetSection("AdminSettings"));
 
             services.AddJWT(jwtSettings);
             services.AddSwagger();
@@ -68,7 +71,7 @@ namespace PublicElections.Api
             services.AddAutoMapper(typeof(Startup));
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -105,6 +108,10 @@ namespace PublicElections.Api
             {
                 endpoints.MapControllers();
             });
+
+            serviceProvider.CreateApplicationAdminAsync().Wait();
         }
+
+        
     }
 }
