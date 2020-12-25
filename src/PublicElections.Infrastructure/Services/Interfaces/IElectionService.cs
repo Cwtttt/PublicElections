@@ -9,9 +9,10 @@ namespace PublicElections.Infrastructure.Services.Interfaces
     public interface IElectionService : IScopedService
     {
         Task<List<Election>> GetAllAsync();
-        Task<List<Election>> GetByIdAsync(int electionId);
-        Task<Result> CreateElectionAsync(Election election);
-        Task<Result> DeleteElectionAsync(int electionId);
-        Task<List<Candidate>> GetAllElectionCandidatesAsync(int electionId);
+        Task<Election> GetByIdAsync(int electionId);
+        Task<Result> CreateAsync(Election election);
+        Task<Result> DeleteAsync(int electionId);
+        Task<Result> UpdateAsync(Election election);
+        Task<List<Candidate>> GetAllCandidatesAsync(int electionId);
     }
 }

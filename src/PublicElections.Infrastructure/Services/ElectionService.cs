@@ -23,12 +23,12 @@ namespace PublicElections.Infrastructure.Services
             return await _context.Elections.ToListAsync();
         }
 
-        public Task<List<Election>> GetByIdAsync(int electionId)
+        public async Task<Election> GetByIdAsync(int electionId)
         {
-            throw new NotImplementedException();
+            return await _context.Elections.FirstOrDefaultAsync(e => e.Id == electionId);
         }
 
-        public async Task<Result> CreateElectionAsync(Election election)
+        public async Task<Result> CreateAsync(Election election)
         {
             try
             {
@@ -41,8 +41,14 @@ namespace PublicElections.Infrastructure.Services
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
         }
+        public async Task<Result> UpdateAsync(Election election)
+        {
+            _context.Elections.Update(election);
+            var updated = await _context.SaveChangesAsync();
+            return new Result() { Success = updated > 0 };
+        }
 
-        public async Task<Result> DeleteElectionAsync(int electionId)
+        public async Task<Result> DeleteAsync(int electionId)
         {
             try
             {
@@ -54,7 +60,7 @@ namespace PublicElections.Infrastructure.Services
                     return new Result() { Success = false, Errors = new[] { "Election does not exist" } };
 
                 _context.Elections.Remove(election);
-                await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
 
                 return new Result() { Success = true };
             }
@@ -65,7 +71,7 @@ namespace PublicElections.Infrastructure.Services
         }
 
         //CANDIDATES
-        public async Task<List<Candidate>> GetAllElectionCandidatesAsync(int electionId)
+        public async Task<List<Candidate>> GetAllCandidatesAsync(int electionId)
         {
             return await _context.Candidates
                 .Where(c => c.ElectionId == electionId)

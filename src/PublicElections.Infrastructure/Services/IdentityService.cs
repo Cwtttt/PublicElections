@@ -25,14 +25,12 @@ namespace PublicElections.Infrastructure.Services
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtSettings _jwtSettings;
-        private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _context;
         private readonly WebSettings _webSettings;
         private readonly IEmailService _emailService;
         public IdentityService(
             UserManager<ApplicationUser> userManager,
             IOptions<JwtSettings> jwtSettings,
-            TokenValidationParameters tokenValidationParameters,
             DataContext context,
             SignInManager<ApplicationUser> signInManager,
             IOptions<WebSettings> webSettings,
@@ -41,7 +39,6 @@ namespace PublicElections.Infrastructure.Services
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings.Value;
-            _tokenValidationParameters = tokenValidationParameters;
             _context = context;
             _signInManager = signInManager;
             _webSettings = webSettings.Value;
