@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PublicElections.Infrastructure.Options
+namespace PublicElections.Infrastructure.Settings
 {
     public class JwtSettings
     {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-
-namespace PublicElections.Api.Contracts.Requests.Email
+namespace PublicElections.Contracts.Requests.Email
 {
     public class MailRequest
     {

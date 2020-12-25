@@ -7,10 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using PublicElections.Api.Extensions;
-using PublicElections.Domain.Settings;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Ioc;
-using PublicElections.Infrastructure.Options;
+using PublicElections.Infrastructure.Settings;
 using System;
 
 namespace PublicElections.Api
@@ -88,7 +87,7 @@ namespace PublicElections.Api
 
             IdentityModelEventSource.ShowPII = true;
 
-            var swaggerOptions = Configuration.GetSection("SwaggerOptions").Get<SwaggerOptions>();
+            var swaggerOptions = Configuration.GetSection("SwaggerOptions").Get<SwaggerSettings>();
 
             app.UseSwagger(option =>
             {
@@ -109,9 +108,7 @@ namespace PublicElections.Api
                 endpoints.MapControllers();
             });
 
-            serviceProvider.CreateApplicationAdminAsync().Wait();
+            serviceProvider.CreateApplicationAdminAsync().GetAwaiter().GetResult();
         }
-
-        
     }
 }

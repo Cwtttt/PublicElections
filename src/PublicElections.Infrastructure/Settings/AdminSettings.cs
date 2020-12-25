@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PublicElections.Domain.Settings
+﻿namespace PublicElections.Infrastructure.Settings
 {
     public class AdminSettings
     {

@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PublicElections.Api.Contracts.Requests.Identity
+namespace PublicElections.Contracts.Requests.Identity
 {
     public class UserLoginRequest
     {
-        [EmailAddress]
         public string Email { get; set; }
+
+        [Required]
         public string Password { get; set; }
     }
 }

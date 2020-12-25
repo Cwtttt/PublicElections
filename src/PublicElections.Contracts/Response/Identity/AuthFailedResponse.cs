@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PublicElections.Api.Contracts.Response.Identity
+namespace PublicElections.Contracts.Response.Identity
 {
     public class AuthFailedResponse
     {

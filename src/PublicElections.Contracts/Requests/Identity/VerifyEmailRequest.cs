@@ -1,4 +1,4 @@
-﻿namespace PublicElections.Api.Contracts.Requests.Identity
+﻿namespace PublicElections.Contracts.Requests.Identity
 {
     public class VerifyEmailRequest
     {

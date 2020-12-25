@@ -6,6 +6,6 @@ namespace PublicElections.Infrastructure.Services.Interfaces
 {
     public interface IEmailService : IScopedService
     {
-        Task SendEmailAsync(Mail mailRequest);
+        Task<bool> SendEmailAsync(Mail mailRequest);
     }
 }

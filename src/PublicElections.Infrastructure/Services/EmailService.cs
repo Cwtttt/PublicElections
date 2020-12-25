@@ -3,8 +3,8 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using PublicElections.Domain.Dto;
-using PublicElections.Infrastructure.Options;
 using PublicElections.Infrastructure.Services.Interfaces;
+using PublicElections.Infrastructure.Settings;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace PublicElections.Infrastructure.Services
             _mailSettings = mailSettings.Value;
         }
 
-        public async Task SendEmailAsync(Mail mailRequest)
+        public async Task<bool> SendEmailAsync(Mail mailRequest)
         {
             try
             {
@@ -53,10 +53,12 @@ namespace PublicElections.Infrastructure.Services
                 smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
                 await smtp.SendAsync(email);
                 smtp.Disconnect(true);
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                return false;
             }
         }
     }

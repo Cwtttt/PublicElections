@@ -8,7 +8,5 @@ namespace PublicElections.Infrastructure.Services.Interfaces
     {
         Task<AuthenticationResult> RegisterAsync(NewUser user);
         Task<AuthenticationResult> LoginAsync(string email, string password);
-        Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken);
-        Task GenerateEmailConfirmation(string email);
     }
 }

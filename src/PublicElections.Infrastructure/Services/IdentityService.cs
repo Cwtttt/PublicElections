@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using IdentityModel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PublicElections.Domain.Dto;
 using PublicElections.Domain.Entities;
 using PublicElections.Infrastructure.EntityFramework;
-using PublicElections.Infrastructure.Options;
 using PublicElections.Infrastructure.Services.Interfaces;
+using PublicElections.Infrastructure.Settings;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -21,6 +23,7 @@ namespace PublicElections.Infrastructure.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _context;
@@ -33,7 +36,8 @@ namespace PublicElections.Infrastructure.Services
             DataContext context,
             SignInManager<ApplicationUser> signInManager,
             IOptions<WebSettings> webSettings,
-            IEmailService emailService)
+            IEmailService emailService, 
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings.Value;
@@ -42,13 +46,14 @@ namespace PublicElections.Infrastructure.Services
             _signInManager = signInManager;
             _webSettings = webSettings.Value;
             _emailService = emailService;
+            _roleManager = roleManager;
         }
 
         public async Task<AuthenticationResult> RegisterAsync(NewUser user)
         {
-            var existingUser = await _userManager.FindByEmailAsync(user.Email);
+            bool userExist = await CheckIfUserExistAsync(user.Pesel);
 
-            if (existingUser != null)
+            if (userExist)
             {
                 return new AuthenticationResult
                 {
@@ -62,11 +67,12 @@ namespace PublicElections.Infrastructure.Services
                 LastName = user.LastName,
                 FullName = $"{user.FirstName} {user.LastName}",
                 UserName = user.Email,
-                BirthDate = user.BirthDate,
                 Email = user.Email
             };
 
-            var createUser = await _userManager.CreateAsync(newUser, user.Password);
+            var password = GenerateRandomPassword();
+
+            var createUser = await _userManager.CreateAsync(newUser, password);
 
             if (!createUser.Succeeded)
             {
@@ -76,9 +82,22 @@ namespace PublicElections.Infrastructure.Services
                 };
             }
 
-            return await GenerateAuthenticationResultForUserAsync(newUser);
-        }
+            var sendConfirmationEmail = await GenerateEmailConfirmation(newUser.Email, password);
 
+            if (!sendConfirmationEmail)
+            {
+                await _userManager.DeleteAsync(newUser);
+                return new AuthenticationResult
+                {
+                    Errors = new[] {"Send confirmation email fail"}
+                };
+            }
+
+            return new AuthenticationResult
+            {
+                Success = true
+            };
+        }
 
         public async Task<AuthenticationResult> LoginAsync(string email, string password)
         {
@@ -92,187 +111,153 @@ namespace PublicElections.Infrastructure.Services
                 };
             }
 
-            var userHasValidPassword = await _userManager.CheckPasswordAsync(user, password);
+            var result = await _signInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: true);
 
-            if (!userHasValidPassword)
+            if (result.Succeeded)
+            {
+                return await GenerateAuthenticationResultForUserAsync(user);
+            }
+            else if (result.IsLockedOut)
             {
                 return new AuthenticationResult
                 {
-                    Errors = new[] { "User and password combination is wrong" }
+                    Errors = new[] { "User account locked out." }
                 };
             }
-
-            //var result = await _signInManager.PasswordSignInAsync(loggedUser.Email, loggedUser.Password, false, lockoutOnFailure: true);
-            //if (result.Succeeded)
-            //{
-            //    return await GenerateAuthenticationResultForUserAsync(user);
-            //}
-            //else if (result.IsLockedOut)
-            //{
-            //    return new AuthenticationResult
-            //    {
-            //        Errors = new[] { "User account locked out." }
-            //    };
-            //}
-            //else
-            //{
-            //    return new AuthenticationResult
-            //    {
-            //        Errors = new[] { "User and password combination is wrong." }
-            //    };
-            //}
-
-            return await GenerateAuthenticationResultForUserAsync(user);
+            else
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User and password combination is wrong." }
+                };
+            }
         }
 
-        public async Task GenerateEmailConfirmation(string userEmail)
+        private async Task<bool> GenerateEmailConfirmation(string userEmail, string userPassword)
         {
             var user = await _userManager.FindByEmailAsync(userEmail);
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodeCode = WebUtility.UrlEncode(code);
 
-            var link = $"{_webSettings.WebUrl}{_webSettings.ConfirmationEmailPath}?userid={user.Id}&code={encodeCode}";
-            link = $"Witaj nowy użytkowniku Employee Messenger, zaloguj sie klikając w <a href=\"{link}\">link</a> aby korzystać z konta, elo!";
+            var body = $"{_webSettings.WebUrl}{_webSettings.ConfirmationEmailPath}?userid={user.Id}&code={encodeCode}";
+
+            body = $"Potwierdź email klikając w <a href=\"{body}\">link</a> aby korzystać z konta, następnie zaloguj się." +
+                   $"Login: {userEmail}" +
+                   $"Hasło: {userPassword}";
 
             Mail mailRequest = new Mail()
             {
                 ToEmail = user.Email,
                 Subject = "Potwierdzenie adresu email",
-                Body = link
+                Body = body
             };
 
-            await _emailService.SendEmailAsync(mailRequest);
+            return await _emailService.SendEmailAsync(mailRequest);
         }
 
-        public async Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken)
-        {
-            var validatedToken = GetPrincipalFromToken(token);
-
-            if (validatedToken == null)
-            {
-                return new AuthenticationResult { Errors = new[] { "Incalid Token" } };
-            }
-
-            var expiryDateUnix = long.Parse(validatedToken.Claims
-                .Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-
-            var expiryDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                .AddSeconds(expiryDateUnix);
-
-            if (expiryDateTimeUtc > DateTime.UtcNow)
-            {
-                return new AuthenticationResult { Errors = new[] { "This token hasn't expired yet" } };
-            }
-
-            var jti = validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
-
-            var storedRefreshToken = await _context.RefreshTokens.SingleOrDefaultAsync(x => x.Token == refreshToken);
-
-            if (storedRefreshToken == null)
-            {
-                return new AuthenticationResult { Errors = new[] { "This refresh token does not exist" } };
-            }
-
-            if (DateTime.UtcNow > storedRefreshToken.ExpiryDate)
-            {
-                return new AuthenticationResult { Errors = new[] { "This refresh token has expired" } };
-            }
-
-            if (storedRefreshToken.Invalidated)
-            {
-                return new AuthenticationResult { Errors = new[] { "This refresh token has been invalided" } };
-            }
-
-            if (storedRefreshToken.Used)
-            {
-                return new AuthenticationResult { Errors = new[] { "This refresh token has been used" } };
-            }
-
-            if (storedRefreshToken.JwtId != jti)
-            {
-                return new AuthenticationResult { Errors = new[] { "This refresh token does not match this JWT" } };
-            }
-
-            storedRefreshToken.Used = true;
-            _context.RefreshTokens.Update(storedRefreshToken);
-            await _context.SaveChangesAsync();
-
-            var user = await _userManager.FindByIdAsync(
-                validatedToken.Claims
-                .Single(x => x.Type == "id").Value);
-
-            return await GenerateAuthenticationResultForUserAsync(user);
-        }
-
-        private ClaimsPrincipal GetPrincipalFromToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                _tokenValidationParameters.ValidateLifetime = false;
-
-                var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
-
-                _tokenValidationParameters.ValidateLifetime = true;
-
-                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
-                {
-                    return null;
-                }
-                return principal;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return null;
-            }
-        }
-        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
-        {
-            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
-                jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
-        }
         private async Task<AuthenticationResult> GenerateAuthenticationResultForUserAsync(IdentityUser user)
         {
             ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", user.Id)
+            };
+
+            var userRoles = await _userManager.GetRolesAsync(appUser);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role == null) continue;
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                foreach (var roleClaim in roleClaims)
+                {
+                    if (claims.Contains(roleClaim))
+                        continue;
+
+                    claims.Add(roleClaim);
+                }
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("id", user.Id)
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var refreshToken = new RefreshToken()
-            {
-                JwtId = token.Id,
-                UserId = user.Id,
-                CreationDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddMonths(6)
-            };
-
-            await _context.RefreshTokens.AddAsync(refreshToken);
-            await _context.SaveChangesAsync();
-
             return new AuthenticationResult
             {
                 Success = true,
                 Token = tokenHandler.WriteToken(token),
-                RefreshToken = refreshToken.Token,
                 FirstName = appUser.FirstName,
                 LastName = appUser.LastName,
                 UserId = appUser.Id
             };
         }
+
+        private string GenerateRandomPassword()
+        {
+            PasswordOptions passwordOptions = new PasswordOptions()
+            {
+                RequiredLength = 10,
+                RequiredUniqueChars = 4,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireNonAlphanumeric = true,
+                RequireUppercase = true
+            };
+
+            string[] randomChars = new[] {
+                "ABCDEFGHJKLMNOPQRSTUVWXYZ",    // uppercase 
+                "abcdefghijkmnopqrstuvwxyz",    // lowercase
+                "0123456789",                   // digits
+                "!@$?_-"                        // non-alphanumeric
+            };
+
+            CryptoRandom rand = new CryptoRandom();
+            List<char> chars = new List<char>();
+
+            if (passwordOptions.RequireUppercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+            if (passwordOptions.RequireLowercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[1][rand.Next(0, randomChars[1].Length)]);
+
+            if (passwordOptions.RequireDigit)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[2][rand.Next(0, randomChars[2].Length)]);
+
+            if (passwordOptions.RequireNonAlphanumeric)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[3][rand.Next(0, randomChars[3].Length)]);
+
+            for (int i = chars.Count; i < passwordOptions.RequiredLength
+                || chars.Distinct().Count() < passwordOptions.RequiredUniqueChars; i++)
+            {
+                string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                chars.Insert(rand.Next(0, chars.Count),
+                    rcs[rand.Next(0, rcs.Length)]);
+            }
+
+            return new string(chars.ToArray());
+        }
+
+        private async Task<bool> CheckIfUserExistAsync(int pesel)
+        {
+            return await _context.Users.AnyAsync(x => x.Pesel == pesel);
+        } 
     }
 }

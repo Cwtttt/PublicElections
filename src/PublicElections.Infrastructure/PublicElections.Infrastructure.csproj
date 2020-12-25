@@ -3,7 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
+    <Compile Remove="EntityFramework\Migrations\20201221184638_Init_Models.cs" />
+    <Compile Remove="EntityFramework\Migrations\20201221184638_Init_Models.Designer.cs" />
+    <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.cs" />
+    <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.Designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+
+    <PackageReference Include="IdentityModel" Version="4.5.0" />
+
+    <PackageReference Include="LanguageExt.Core" Version="3.4.15" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.9" />

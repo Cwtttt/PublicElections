@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PublicElections.Domain.Entities;
-using PublicElections.Infrastructure.Options;
+using PublicElections.Infrastructure.Settings;
 
 namespace PublicElections.Infrastructure.EntityFramework
 {
@@ -13,6 +14,7 @@ namespace PublicElections.Infrastructure.EntityFramework
                 options.UseSqlServer(sqlSettings.ConnectionString), ServiceLifetime.Transient);
 
             services.AddDefaultIdentity<ApplicationUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<DataContext>();
         }
     }

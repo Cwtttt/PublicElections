@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicElections.Domain", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicElections.Infrastructure", "PublicElections.Infrastructure\PublicElections.Infrastructure.csproj", "{061B6768-BCDD-445A-AF90-FD014393B4DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicElections.Contracts", "PublicElections.Contracts\PublicElections.Contracts.csproj", "{B85C675F-E34A-4FDA-8D7C-0FB7E56E021D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{061B6768-BCDD-445A-AF90-FD014393B4DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{061B6768-BCDD-445A-AF90-FD014393B4DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{061B6768-BCDD-445A-AF90-FD014393B4DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B85C675F-E34A-4FDA-8D7C-0FB7E56E021D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B85C675F-E34A-4FDA-8D7C-0FB7E56E021D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B85C675F-E34A-4FDA-8D7C-0FB7E56E021D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B85C675F-E34A-4FDA-8D7C-0FB7E56E021D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

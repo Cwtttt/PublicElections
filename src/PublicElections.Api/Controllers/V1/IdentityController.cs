@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PublicElections.Api.Contracts.Requests.Identity;
-using PublicElections.Api.Contracts.Response.Identity;
 using PublicElections.Api.Controllers.V1.Abstract;
+using PublicElections.Contracts.Requests.Identity;
+using PublicElections.Contracts.Response.Identity;
 using PublicElections.Domain.Dto;
 using PublicElections.Domain.Entities;
 using PublicElections.Infrastructure.Services.Interfaces;
@@ -50,16 +50,7 @@ namespace PublicElections.Api.Controllers.V1
                 });
             }
 
-            await _identityService.GenerateEmailConfirmation(request.Email);
-
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                UserId = authResponse.UserId
-            });
+            return Ok();
         }
 
         [HttpPost("login")]
@@ -78,30 +69,9 @@ namespace PublicElections.Api.Controllers.V1
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken,
                 FirstName = authResponse.FirstName,
                 LastName = authResponse.LastName,
                 UserId = authResponse.UserId
-            });
-        }
-
-        [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
-        {
-            var authResponse = await _identityService.RefreshTokenAsync(request.Token, request.RefreshToken);
-
-            if (!authResponse.Success)
-            {
-                return BadRequest(new AuthFailedResponse
-                {
-                    Errors = authResponse.Errors
-                });
-            }
-
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
             });
         }
 

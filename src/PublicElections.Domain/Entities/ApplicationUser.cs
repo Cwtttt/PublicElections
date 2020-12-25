@@ -10,5 +10,6 @@ namespace PublicElections.Domain.Entities
         public string LastName { get; set; }
         public string FullName { get; set; }
         public DateTime BirthDate { get; set; }
+        public int Pesel { get; set; }
     }
 }
