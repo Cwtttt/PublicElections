@@ -76,6 +76,8 @@
     <Compile Include="Requests\Identity\UserLoginRequest.cs" />
     <Compile Include="Requests\Identity\UserRegistrationRequest.cs" />
     <Compile Include="Requests\Identity\VerifyEmailRequest.cs" />
+    <Compile Include="Response\Candidates\CandidateResponse.cs" />
+    <Compile Include="Response\Elections\ElectionResponse.cs" />
     <Compile Include="Response\Identity\AuthenticationResult.cs" />
     <Compile Include="Response\Identity\AuthFailedResponse.cs" />
     <Compile Include="Response\Identity\AuthSuccessResponse.cs" />

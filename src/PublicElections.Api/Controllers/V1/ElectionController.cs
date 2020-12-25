@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using PublicElections.Api.Controllers.V1.Abstract;
 using PublicElections.Contracts.Requests.Election;
+using PublicElections.Contracts.Response.Candidates;
+using PublicElections.Contracts.Response.Elections;
 using PublicElections.Domain.Entities;
 using PublicElections.Infrastructure.Services.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PublicElections.Api.Controllers.V1
@@ -15,16 +21,44 @@ namespace PublicElections.Api.Controllers.V1
     public class ElectionController : ApiControllerBase
     {
         private readonly IElectionService _electionService;
-        public ElectionController(IElectionService electionService)
+        private readonly IMapper _mapper;
+        public ElectionController(
+            IElectionService electionService, 
+            IMapper mapper)
         {
             _electionService = electionService;
+            _mapper = mapper;
         }
 
-        [HttpPost("api/v1/election")]
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (!context.ModelState.IsValid)
+            {
+                context.Result = new BadRequestObjectResult(new { 
+                    Errors = context.ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var elections = await _electionService.GetAllAsync();
+            var electionsResponse = _mapper.Map<List<ElectionResponse>>(elections);
+            return Ok(electionsResponse);
+        }
+
+        [HttpGet("{electionId}")]
+        public async Task<IActionResult> GetbyId(int electionId)
+        {
+            var elections = await _electionService.GetAllAsync();
+            var electionsResponse = _mapper.Map<List<ElectionResponse>>(elections);
+            return Ok(electionsResponse);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> CreateElection([FromBody] CreateElectionRequest request)
         {
-            if (!ModelState.IsValid) return BadRequest(new {Message = "Model state is not valid"});
-
             Election election = new Election()
             {
                 Name = request.Name,
@@ -36,19 +70,30 @@ namespace PublicElections.Api.Controllers.V1
             var result = await _electionService.CreateElectionAsync(election);
 
             if (!result.Success) 
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Error during creating new election" });
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Errors );
 
             return Ok(new { Message = "New election created successfully" });
         }
 
-        [HttpDelete("api/v1/election/{electionId}")]
-        public async Task<IActionResult> DeleteElection([FromRoute] int electionId)
+        [HttpDelete("{electionId}")]
+        public async Task<IActionResult> DeleteElection(int electionId)
         {
-            if (!ModelState.IsValid) return BadRequest(new { Message = "Model state is not valid" });
-
             var result = await _electionService.DeleteElectionAsync(electionId);
 
-            return Ok();
+            if (!result.Success)
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Errors);
+
+            return Ok(new { Message = "Election deleted successfully" });
+        }
+
+        //Candidates
+
+        [HttpGet("{electionId}/candidates")]
+        public async Task<IActionResult> GetAllElectionCandidates(int electionId)
+        {
+            var candidates = await _electionService.GetAllElectionCandidatesAsync(electionId);
+            var candidatesResponse = _mapper.Map<List<CandidateResponse>>(candidates);
+            return Ok(candidatesResponse);
         }
     }
 }

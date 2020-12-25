@@ -4,6 +4,7 @@ using PublicElections.Domain.Entities;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,17 @@ namespace PublicElections.Infrastructure.Services
         {
 
         }
+
+        public async Task<List<Election>> GetAllAsync()
+        {
+            return await _context.Elections.ToListAsync();
+        }
+
+        public Task<List<Election>> GetByIdAsync(int electionId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Result> CreateElectionAsync(Election election)
         {
             try
@@ -50,6 +62,14 @@ namespace PublicElections.Infrastructure.Services
             {
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
+        }
+
+        //CANDIDATES
+        public async Task<List<Candidate>> GetAllElectionCandidatesAsync(int electionId)
+        {
+            return await _context.Candidates
+                .Where(c => c.ElectionId == electionId)
+                .ToListAsync();
         }
     }
 }
