@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace PublicElections.Domain.Dto
+namespace PublicElections.Domain.Models
 {
     public class Mail
     {

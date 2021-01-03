@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PublicElections.Contracts.Response.Candidates
+﻿namespace PublicElections.Contracts.Response.Candidates
 {
     public class CandidateResponse
     {

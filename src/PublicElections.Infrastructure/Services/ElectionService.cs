@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PublicElections.Domain.Dto;
 using PublicElections.Domain.Entities;
+using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services.Interfaces;
 using System;
@@ -13,10 +13,7 @@ namespace PublicElections.Infrastructure.Services
     public class ElectionService : BaseService, IElectionService
     {
         public ElectionService(DataContext context) 
-            : base(context)
-        {
-
-        }
+            : base(context) { }
 
         public async Task<List<Election>> GetAllAsync()
         {
@@ -38,6 +35,7 @@ namespace PublicElections.Infrastructure.Services
             }
             catch(Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
         }
@@ -56,16 +54,17 @@ namespace PublicElections.Infrastructure.Services
                     .Include(e => e.Candidates)
                     .FirstOrDefault(e => e.Id == electionId);
 
-                if(election == null) 
-                    return new Result() { Success = false, Errors = new[] { "Election does not exist" } };
+                if(election == null)
+                    return new Result() { Success = true };
 
                 _context.Elections.Remove(election);
-                var result = await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 return new Result() { Success = true };
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
         }

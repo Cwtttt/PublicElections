@@ -71,6 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Requests\Candidate\UpdateCandidateRequest.cs" />
+    <Compile Include="Requests\Election\AddCandidateRequest.cs" />
     <Compile Include="Requests\Election\CreateElectionRequest.cs" />
     <Compile Include="Requests\Election\UpdateElectionRequest.cs" />
     <Compile Include="Requests\Email\MailRequest.cs" />

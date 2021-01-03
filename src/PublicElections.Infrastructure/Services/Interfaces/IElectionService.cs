@@ -1,5 +1,5 @@
-﻿using PublicElections.Domain.Dto;
-using PublicElections.Domain.Entities;
+﻿using PublicElections.Domain.Entities;
+using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.Ioc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,5 +14,6 @@ namespace PublicElections.Infrastructure.Services.Interfaces
         Task<Result> DeleteAsync(int electionId);
         Task<Result> UpdateAsync(Election election);
         Task<List<Candidate>> GetAllCandidatesAsync(int electionId);
+        Task<Result> AddCandidateAsync(Candidate candidate);
     }
 }

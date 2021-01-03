@@ -2,7 +2,7 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using PublicElections.Domain.Dto;
+using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.Services.Interfaces;
 using PublicElections.Infrastructure.Settings;
 using System;
@@ -25,8 +25,10 @@ namespace PublicElections.Infrastructure.Services
         {
             try
             {
-                var email = new MimeMessage();
-                email.Sender = MailboxAddress.Parse(_mailSettings.Mail);
+                var email = new MimeMessage
+                {
+                    Sender = MailboxAddress.Parse(_mailSettings.Mail)
+                };
                 email.To.Add(MailboxAddress.Parse(mailRequest.ToEmail));
                 email.Subject = mailRequest.Subject;
                 var builder = new BodyBuilder();

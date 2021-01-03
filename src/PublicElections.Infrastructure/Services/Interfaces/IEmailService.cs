@@ -1,4 +1,4 @@
-﻿using PublicElections.Domain.Dto;
+﻿using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.Ioc;
 using System.Threading.Tasks;
 

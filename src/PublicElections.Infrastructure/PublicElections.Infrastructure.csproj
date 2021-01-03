@@ -9,6 +9,8 @@
     <Compile Remove="EntityFramework\Migrations\20201221184638_Init_Models.Designer.cs" />
     <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.cs" />
     <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.Designer.cs" />
+    <Compile Remove="EntityFramework\Migrations\20201227185112_alter_talle_election_add_createddate_colum.cs" />
+    <Compile Remove="EntityFramework\Migrations\20201227185112_alter_talle_election_add_createddate_colum.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
 

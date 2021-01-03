@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PublicElections.Domain.Dto;
 using PublicElections.Domain.Entities;
+using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services.Interfaces;
 using PublicElections.Infrastructure.Settings;

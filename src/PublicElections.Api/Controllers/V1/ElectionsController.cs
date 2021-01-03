@@ -23,11 +23,11 @@ namespace PublicElections.Api.Controllers.V1
         private readonly IElectionService _electionService;
         private readonly IMapper _mapper;
         public ElectionsController(
-            IElectionService electionService, 
-            IMapper mapper)
+            IMapper mapper,
+            IElectionService electionService)
         {
-            _electionService = electionService;
             _mapper = mapper;
+            _electionService = electionService;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -44,15 +44,20 @@ namespace PublicElections.Api.Controllers.V1
         public async Task<IActionResult> GetAll()
         {
             var elections = await _electionService.GetAllAsync();
+
+            if (elections.Count() == 0) return NoContent();
+
             var electionsResponse = _mapper.Map<List<ElectionResponse>>(elections);
+
             return Ok(electionsResponse);
         }
 
         [HttpGet("{electionId}")]
-        public async Task<IActionResult> GetbyId(int electionId)
+        public async Task<IActionResult> GetbyId([FromRoute] int electionId)
         {
             var election = await _electionService.GetByIdAsync(electionId);
-            var electionResponse = _mapper.Map<List<ElectionResponse>>(election);
+            var electionResponse = _mapper.Map<ElectionResponse>(election);
+
             return Ok(electionResponse);
         }
 
@@ -76,17 +81,17 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpDelete("{electionId}")]
-        public async Task<IActionResult> Delete(int electionId)
+        public async Task<IActionResult> Delete([FromRoute] int electionId)
         {
             var result = await _electionService.DeleteAsync(electionId);
 
             if (!result.Success)
                 return StatusCode(StatusCodes.Status500InternalServerError, result.Errors);
 
-            return Ok(new { Message = "Election deleted successfully" });
+            return NoContent();
         }
 
-        [HttpPut("electionId")]
+        [HttpPut("{electionId}")]
         public async Task<IActionResult> Update([FromRoute] int electionId, [FromBody] UpdateElectionRequest request)
         {
             var election = await _electionService.GetByIdAsync(electionId);
@@ -100,16 +105,20 @@ namespace PublicElections.Api.Controllers.V1
             if (!result.Success)
                 return StatusCode(StatusCodes.Status500InternalServerError, result.Errors);
 
-            return Ok(new { Message = "Election deleted successfully" });
+            return Ok(new { Message = "Election updated successfully" });
         }
 
         //Candidates
 
         [HttpGet("{electionId}/candidates")]
-        public async Task<IActionResult> GetAllCandidates(int electionId)
+        public async Task<IActionResult> GetAllCandidates([FromRoute] int electionId)
         {
             var candidates = await _electionService.GetAllCandidatesAsync(electionId);
+
+            if (candidates.Count() == 0) return NoContent();
+            
             var candidatesResponse = _mapper.Map<List<CandidateResponse>>(candidates);
+
             return Ok(candidatesResponse);
         }
     }
