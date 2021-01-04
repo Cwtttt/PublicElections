@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PublicElections.Api.Controllers.V1.Abstract;
@@ -7,13 +9,11 @@ using PublicElections.Contracts.Requests.Election;
 using PublicElections.Contracts.Response.Candidates;
 using PublicElections.Domain.Entities;
 using PublicElections.Infrastructure.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PublicElections.Api.Controllers.V1
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public class CandidatesController : ApiControllerBase
     {
         private readonly ICandidateService _candidateService;

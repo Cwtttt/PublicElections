@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using PublicElections.Api.Controllers.V1.Abstract;
 using PublicElections.Contracts.Requests.Identity;
 using PublicElections.Contracts.Response.Identity;
-using PublicElections.Domain.Dto;
 using PublicElections.Domain.Entities;
+using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.Services.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
@@ -75,7 +75,7 @@ namespace PublicElections.Api.Controllers.V1
             });
         }
 
-        [HttpGet("verifyemail")]
+        [HttpPost("verifyemail")]
         public async Task<IActionResult> VerifyEmail([FromQuery] VerifyEmailRequest verifyEmailRequest)
         {
             var user = await _userManager.FindByIdAsync(verifyEmailRequest.UserId);

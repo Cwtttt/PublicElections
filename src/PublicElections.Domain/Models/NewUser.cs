@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PublicElections.Domain.Dto
+namespace PublicElections.Domain.Models
 {
     public class NewUser
     {

@@ -1,9 +1,6 @@
 ﻿using PublicElections.Domain.Entities;
 using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.Ioc;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PublicElections.Infrastructure.Services.Interfaces

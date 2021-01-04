@@ -4,8 +4,6 @@ using PublicElections.Domain.Models;
 using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PublicElections.Infrastructure.Services
