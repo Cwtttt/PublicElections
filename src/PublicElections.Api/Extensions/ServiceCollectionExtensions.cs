@@ -45,7 +45,7 @@ namespace PublicElections.Api.Extensions
         {
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Employee Messenger API", Version = "v1" });
+                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Public Elections API", Version = "v1" });
 
                 var security = new Dictionary<string, IEnumerable<string>>
                 {

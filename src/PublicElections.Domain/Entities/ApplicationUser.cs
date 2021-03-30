@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PublicElections.Domain.Entities
 {
@@ -10,6 +11,8 @@ namespace PublicElections.Domain.Entities
         public string LastName { get; set; }
         public string FullName { get; set; }
         public DateTime BirthDate { get; set; }
-        public int Pesel { get; set; }
+        [StringLength(11)]
+        [MinLength(11)]
+        public string Pesel { get; set; }
     }
 }

@@ -26,11 +26,14 @@ namespace PublicElections.Infrastructure.Services
                 using (var connection = factory.CreateConnection())
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "hello",
-                                         durable: false,
+                    channel.QueueDeclare(queue: "Votes",
+                                         durable: true,
                                          exclusive: false,
                                          autoDelete: false,
                                          arguments: null);
+
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
 
                     UserVote vote = new UserVote()
                     {
@@ -44,8 +47,8 @@ namespace PublicElections.Infrastructure.Services
 
                     
                     channel.BasicPublish(exchange: "",
-                                         routingKey: "hello",
-                                         basicProperties: null,
+                                         routingKey: "Votes",
+                                         basicProperties: properties,
                                          body: body);
                 }
 
@@ -56,7 +59,5 @@ namespace PublicElections.Infrastructure.Services
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
         }
-
-
     }
 }

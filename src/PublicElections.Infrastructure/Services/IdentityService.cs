@@ -252,7 +252,7 @@ namespace PublicElections.Infrastructure.Services
             return new string(chars.ToArray());
         }
 
-        private async Task<bool> CheckIfUserExistAsync(int pesel)
+        private async Task<bool> CheckIfUserExistAsync(string pesel)
         {
             return await _context.Users.AnyAsync(x => x.Pesel == pesel);
         } 

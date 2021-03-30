@@ -76,5 +76,24 @@ namespace PublicElections.Infrastructure.Services
                 .Where(c => c.ElectionId == electionId)
                 .ToListAsync();
         }
+
+        public async Task<List<ElectionForUser>> GetAllForUserAsync(string userId)
+        {
+            var elections = await _context.Elections.ToListAsync();
+
+            var participations = await _context.Participations
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            return elections.Select(x => new ElectionForUser()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                CanParticipate = !participations.Any(p => p.ElectionId == x.Id)
+            }).ToList();
+
+        }
     }
 }

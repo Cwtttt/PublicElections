@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using PublicElections.Contracts.Requests.Identity;
 using PublicElections.Contracts.Response.Candidates;
 using PublicElections.Contracts.Response.Elections;
 using PublicElections.Domain.Entities;
+using PublicElections.Domain.Models;
 
 namespace PublicElections.Api.MappingProfiles
 {
@@ -11,6 +13,7 @@ namespace PublicElections.Api.MappingProfiles
         {
             CreateMap<Election, ElectionResponse>();
             CreateMap<Candidate, CandidateResponse>();
+            CreateMap<UserRegistrationRequest, NewUser>();
         }
     }
 }

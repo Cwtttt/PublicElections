@@ -4,6 +4,7 @@ namespace PublicElections.Contracts.Requests.Identity
 {
     public class UserLoginRequest
     {
+        [Required]
         public string Email { get; set; }
 
         [Required]

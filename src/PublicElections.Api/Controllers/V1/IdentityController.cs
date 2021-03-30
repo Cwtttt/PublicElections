@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using PublicElections.Api.Controllers.V1.Abstract;
 using PublicElections.Contracts.Requests.Identity;
 using PublicElections.Contracts.Response.Identity;
@@ -28,16 +29,20 @@ namespace PublicElections.Api.Controllers.V1
             _mapper = mapper;
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (!context.ModelState.IsValid)
+            {
+                context.Result = new BadRequestObjectResult(new
+                {
+                    Errors = context.ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new AuthFailedResponse
-                {
-                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
-                });
-            };
 
             NewUser newUser = _mapper.Map<NewUser>(request);
             var authResponse = await _identityService.RegisterAsync(newUser);

@@ -17,11 +17,13 @@ namespace PublicElections.Api.Extensions
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string adminRole = "Admin";
+
             var roleExist = await roleManager.RoleExistsAsync(adminRole);
             if (!roleExist)
             {
                 await roleManager.CreateAsync(new IdentityRole(adminRole));
             }
+
             string userName = adminSettings.UserName;
             string userPassword = adminSettings.Password;
 

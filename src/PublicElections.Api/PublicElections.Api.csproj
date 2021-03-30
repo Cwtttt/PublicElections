@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UserSecretsId>aspnet-EmployeeMessenger.Api-A2AE0E99-17FF-474E-ADD0-78F2FEA4E35C</UserSecretsId>
+    <UserSecretsId>aspnet-PublicElections.Api-A2AE0E99-17FF-474E-ADD0-78F2FEA4E35C</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

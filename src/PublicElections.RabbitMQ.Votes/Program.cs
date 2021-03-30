@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PublicElections.Domain.Entities;
 using PublicElections.Domain.Models;
+using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services;
 using PublicElections.Infrastructure.Services.Interfaces;
 using RabbitMQ.Client;
@@ -19,6 +21,8 @@ namespace PublicElections.RabbitMQ.Votes
         {
             var serviceProvider = new ServiceCollection()
                 .AddScoped<IVoteService, VoteService>()
+                .AddDbContext<DataContext>(options =>
+                    options.UseSqlServer("Server=localhost;Database=PublicElections;User Id=sa;Password=Admin123!@;MultipleActiveResultSets=true"), ServiceLifetime.Transient)
                 .BuildServiceProvider();
 
             var _voteService = serviceProvider.GetService<IVoteService>();
@@ -27,8 +31,8 @@ namespace PublicElections.RabbitMQ.Votes
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: "hello",
-                                     durable: false,
+                channel.QueueDeclare(queue: "Votes",
+                                     durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
@@ -39,8 +43,9 @@ namespace PublicElections.RabbitMQ.Votes
                     var body = ea.Body.ToArray();
                     UserVote userVote = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(body)) as UserVote;
 
+
                 };
-                channel.BasicConsume(queue: "hello",
+                channel.BasicConsume(queue: "Votes",
                                      autoAck: true,
                                      consumer: consumer);
 

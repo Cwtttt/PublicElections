@@ -13,11 +13,12 @@ using PublicElections.Infrastructure.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PublicElections.Api.Controllers.V1
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ElectionsController : ApiControllerBase
     {
         private readonly IElectionService _electionService;
@@ -41,6 +42,7 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var elections = await _electionService.GetAllAsync();
@@ -62,6 +64,7 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateElectionRequest request)
         {
             Election election = new Election()
@@ -81,6 +84,7 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpDelete("{electionId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int electionId)
         {
             var result = await _electionService.DeleteAsync(electionId);
@@ -92,6 +96,7 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpPut("{electionId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int electionId, [FromBody] UpdateElectionRequest request)
         {
             var election = await _electionService.GetByIdAsync(electionId);
@@ -120,6 +125,19 @@ namespace PublicElections.Api.Controllers.V1
             var candidatesResponse = _mapper.Map<List<CandidateResponse>>(candidates);
 
             return Ok(candidatesResponse);
+        }
+
+        //User
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetAllForUser()
+        {
+            var claimsIdentity = this.User.Identity as ClaimsIdentity;
+            var userId = claimsIdentity.Claims
+                .FirstOrDefault(x => x.Type == "id").Value;
+
+            var response = await _electionService.GetAllForUserAsync(userId);
+            return Ok(response);
         }
     }
 }
