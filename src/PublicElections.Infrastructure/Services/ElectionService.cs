@@ -93,7 +93,6 @@ namespace PublicElections.Infrastructure.Services
                 EndDate = x.EndDate,
                 CanParticipate = !participations.Any(p => p.ElectionId == x.Id)
             }).ToList();
-
         }
     }
 }

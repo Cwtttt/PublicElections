@@ -9,6 +9,9 @@ namespace PublicElections.Infrastructure.Services.Interfaces
 {
     public interface IVoteService : IScopedService
     {
-        Task<Result> Add(string userId, int electionId, int candidateId);
+        Result Add(string userId, int electionId, int candidateId);
+        bool CheckIfUserCanVote(string userId, int electionId);
+        Task AddAnonymousVoteAsync(int electionId, int candidateId);
+        Task AddParticipationAsync(string userId, int electionId);
     }
 }

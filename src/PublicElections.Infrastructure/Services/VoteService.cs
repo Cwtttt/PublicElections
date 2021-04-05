@@ -4,11 +4,10 @@ using PublicElections.Infrastructure.EntityFramework;
 using PublicElections.Infrastructure.Services.Interfaces;
 using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
+using PublicElections.Domain.Entities;
 
 namespace PublicElections.Infrastructure.Services
 {
@@ -17,7 +16,7 @@ namespace PublicElections.Infrastructure.Services
         public VoteService(DataContext context)
             : base(context) { }
 
-        public async Task<Result> Add(string userId, int electionId, int candidateId)
+        public Result Add(string userId, int electionId, int candidateId)
         {
             try
             {
@@ -58,6 +57,23 @@ namespace PublicElections.Infrastructure.Services
             {
                 return new Result() { Success = false, Errors = new[] { ex.ToString() } };
             }
+        }
+
+        public async Task AddAnonymousVoteAsync(int electionId, int candidateId)
+        {
+            await _context.Votes.AddAsync(new Vote() { ElectionId = electionId, CandidateId = candidateId });
+            await _context.SaveChangesAsync();
+        }
+
+        public bool CheckIfUserCanVote(string userId, int electionId)
+        {
+            return !_context.Participations.Any(x => x.UserId == userId && x.ElectionId == electionId);
+        }
+
+        public async Task AddParticipationAsync(string userId, int electionId)
+        {
+            await _context.Participations.AddAsync(new Participation() { UserId = userId, ElectionId = electionId });
+            await _context.SaveChangesAsync();
         }
     }
 }

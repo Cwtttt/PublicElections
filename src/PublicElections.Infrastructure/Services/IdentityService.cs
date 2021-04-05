@@ -54,7 +54,7 @@ namespace PublicElections.Infrastructure.Services
             {
                 return new AuthenticationResult
                 {
-                    Errors = new[] { "User with this email address already exists" }
+                    Errors = new[] { "User already exists" }
                 };
             }
 

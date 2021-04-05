@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PublicElections.Api.Controllers.V1
@@ -34,9 +35,14 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] AddVoteRequest request)
+        public IActionResult Add([FromBody] AddVoteRequest request)
         {
-            _voteService.Add(request.UserId, request.ElectionId, request.CandidateId);
+            var claimsIdentity = this.User.Identity as ClaimsIdentity;
+            var userId = claimsIdentity.Claims
+                .FirstOrDefault(x => x.Type == "id").Value;
+            if (!_voteService.CheckIfUserCanVote(userId, request.ElectionId)) return Unauthorized();
+
+            _voteService.Add(userId, request.ElectionId, request.CandidateId);
             return Ok();
         }
     }

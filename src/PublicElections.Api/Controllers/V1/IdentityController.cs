@@ -43,7 +43,6 @@ namespace PublicElections.Api.Controllers.V1
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-
             NewUser newUser = _mapper.Map<NewUser>(request);
             var authResponse = await _identityService.RegisterAsync(newUser);
 

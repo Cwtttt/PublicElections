@@ -41,8 +41,13 @@ namespace PublicElections.RabbitMQ.Votes
                 consumer.Received += (model, ea) =>
                 {
                     var body = ea.Body.ToArray();
-                    UserVote userVote = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(body)) as UserVote;
-
+                    var json = Encoding.UTF8.GetString(body);
+                    var userVote = JsonConvert.DeserializeObject<UserVote>(json);
+                    if (_voteService.CheckIfUserCanVote(userVote.UserId, userVote.ElectionId))
+                    {
+                        _voteService.AddParticipationAsync(userVote.UserId, userVote.ElectionId);
+                        _voteService.AddAnonymousVoteAsync(userVote.ElectionId, userVote.CandidateId);
+                    }
 
                 };
                 channel.BasicConsume(queue: "Votes",

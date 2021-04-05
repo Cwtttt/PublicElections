@@ -10,8 +10,6 @@ namespace PublicElections.Contracts.Requests.Vote
     public class AddVoteRequest
     {
         [Required]
-        public string UserId { get; set; }
-        [Required]
         public int CandidateId { get; set; }
         [Required]
         public int ElectionId { get; set; }
