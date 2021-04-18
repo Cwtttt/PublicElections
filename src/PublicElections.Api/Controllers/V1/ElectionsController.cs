@@ -127,6 +127,16 @@ namespace PublicElections.Api.Controllers.V1
             return Ok(candidatesResponse);
         }
 
+        //Result
+
+        [HttpGet("results/{electionId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetElectionResult([FromRoute] int electionId)
+        {
+            var response = await _electionService.GetElectionResultAsync(electionId);
+            return Ok(response);
+        }
+
         //User
 
         [HttpGet("me")]

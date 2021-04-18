@@ -80,12 +80,12 @@ namespace PublicElections.Api.Controllers.V1
         }
 
         [HttpPost("verifyemail")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] VerifyEmailRequest verifyEmailRequest)
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest verifyEmailRequest)
         {
             var user = await _userManager.FindByIdAsync(verifyEmailRequest.UserId);
             if (user == null)
             {
-                return BadRequest(new { Error = "User doesn't exist :( " });
+                return BadRequest(new { Error = "User doesn't exist." });
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, verifyEmailRequest.Code);

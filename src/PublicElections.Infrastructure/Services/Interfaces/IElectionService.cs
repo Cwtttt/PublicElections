@@ -14,6 +14,7 @@ namespace PublicElections.Infrastructure.Services.Interfaces
         Task<Result> CreateAsync(Election election);
         Task<Result> DeleteAsync(int electionId);
         Task<Result> UpdateAsync(Election election);
-        Task<List<Candidate>> GetAllCandidatesAsync(int electionId);
+        Task<List<Candidate>> GetAllCandidatesAsync(int electionId); 
+        Task<ElectionResult> GetElectionResultAsync(int electionId);
     }
 }

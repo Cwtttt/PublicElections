@@ -94,5 +94,41 @@ namespace PublicElections.Infrastructure.Services
                 CanParticipate = !participations.Any(p => p.ElectionId == x.Id)
             }).ToList();
         }
+
+        //RESULTS
+        public async Task<ElectionResult> GetElectionResultAsync(int electionId)
+        {
+            ElectionResult electionResult = new ElectionResult();
+
+            var votes = await _context.Votes
+                .Where(v => v.ElectionId == electionId)
+                .ToListAsync();
+
+            electionResult.VotesAmmount = votes.Count;
+
+            var candidates = await _context.Candidates
+                .Where(c => c.ElectionId == electionId)
+                .ToListAsync();
+
+            foreach(var candidate in candidates)
+            {
+                CandidateVotesResult candidateResult = new CandidateVotesResult();
+                candidateResult.CandidateName = candidate.Name;
+                candidateResult.Percentages = votes.GetPercentageOfVotes(candidate.Id);
+
+                electionResult.CandidatesResults.Add(candidateResult);
+            }
+
+            return electionResult;
+        }
+    }
+    public static class VotesExtension
+    {
+        public static decimal GetPercentageOfVotes(this List<Vote> source, int candidateId)
+        {
+            if (!(source.Count > 0)) return 0.0m;
+
+            return Math.Round(100.00m * (decimal)source.Where(v => v.CandidateId == candidateId).Count() / (decimal)source.Count, 3);
+        }
     }
 }

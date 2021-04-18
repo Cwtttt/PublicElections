@@ -64,7 +64,12 @@ namespace PublicElections.Infrastructure.Services
                 LastName = user.LastName,
                 FullName = $"{user.FirstName} {user.LastName}",
                 UserName = user.Email,
-                Email = user.Email
+                Email = user.Email,
+                Pesel = user.Pesel,
+                HauseNumber = user.HauseNumber,
+                ApartmentNumber = user.ApartmentNumber,
+                ZipCode = user.ZipCode,
+                City = user.City
             };
 
             var password = GenerateRandomPassword();
@@ -81,7 +86,7 @@ namespace PublicElections.Infrastructure.Services
 
             var sendConfirmationEmail = await GenerateEmailConfirmation(newUser.Email, password);
 
-            if (!sendConfirmationEmail)
+            if (sendConfirmationEmail)
             {
                 await _userManager.DeleteAsync(newUser);
                 return new AuthenticationResult

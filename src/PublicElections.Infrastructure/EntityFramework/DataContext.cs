@@ -29,7 +29,7 @@ namespace PublicElections.Infrastructure.EntityFramework
                 .HasOne(v => v.Candidate)
                 .WithMany()
                 .HasForeignKey(v => v.CandidateId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.InitializeData();
 

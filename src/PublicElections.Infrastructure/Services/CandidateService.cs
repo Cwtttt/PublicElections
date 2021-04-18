@@ -40,10 +40,10 @@ namespace PublicElections.Infrastructure.Services
             try
             {
                 var candidate = await _context.Candidates
-                    .FirstOrDefaultAsync(c => c.ElectionId == candidateId);
+                    .FirstOrDefaultAsync(c => c.Id == candidateId);
 
                 if (candidate == null)
-                    return new Result { Success = true };
+                    return new Result { Success = false };
 
                 _context.Remove(candidate);
                 await _context.SaveChangesAsync();

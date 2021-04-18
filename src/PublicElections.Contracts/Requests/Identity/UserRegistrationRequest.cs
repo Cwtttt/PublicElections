@@ -13,6 +13,7 @@ namespace PublicElections.Contracts.Requests.Identity
         public string Email { get; set; }
         [Required]
         public string Pesel { get; set; }
+        public string IdNumber { get; set; }
         public string Street { get; set; }
         public string HauseNumber { get; set; }
         public string ApartmentNumber { get; set; }

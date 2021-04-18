@@ -67,7 +67,7 @@ namespace PublicElections.Api.Controllers.V1
         [HttpPut("{candidateId}")]
         public async Task<IActionResult> Update([FromRoute] int candidateId, [FromBody] UpdateCandidateRequest request)
         {
-            var candidate = await _candidateService.GetByIdAsync(request.CandidateId);
+            var candidate = await _candidateService.GetByIdAsync(candidateId);
 
             candidate.Name = request.Name;
 
