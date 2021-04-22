@@ -298,23 +298,20 @@ namespace PublicElections.Infrastructure.EntityFramework.Migrations
 
             modelBuilder.Entity("PublicElections.Domain.Entities.Participation", b =>
                 {
+                    b.Property<int>("ElectionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ElectionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
+                    b.HasKey("ElectionId", "UserId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("ElectionId", "UserId");
 
                     b.ToTable("Participations");
                 });

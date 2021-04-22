@@ -166,9 +166,6 @@ namespace PublicElections.Infrastructure.Services
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("id", user.Id)
             };
 
@@ -202,9 +199,6 @@ namespace PublicElections.Infrastructure.Services
             {
                 Success = true,
                 Token = tokenHandler.WriteToken(token),
-                FirstName = appUser.FirstName,
-                LastName = appUser.LastName,
-                UserId = appUser.Id
             };
         }
 

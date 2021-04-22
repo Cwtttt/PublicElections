@@ -3,21 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="EntityFramework\Migrations\20201221184638_Init_Models.cs" />
-    <Compile Remove="EntityFramework\Migrations\20201221184638_Init_Models.Designer.cs" />
-    <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.cs" />
-    <Compile Remove="EntityFramework\Migrations\20201221195320_Init_Models.Designer.cs" />
-    <Compile Remove="EntityFramework\Migrations\20201227185112_alter_talle_election_add_createddate_colum.cs" />
-    <Compile Remove="EntityFramework\Migrations\20201227185112_alter_talle_election_add_createddate_colum.Designer.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109122246_Alter_table_aspnetusers_column_pesel.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109122246_Alter_table_aspnetusers_column_pesel.Designer.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109122928_Alter_table_aspnetusers_column_pesel_to_string.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109122928_Alter_table_aspnetusers_column_pesel_to_string.Designer.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109123416_Alter_table_aspnetusers_column_pesel2.cs" />
-    <Compile Remove="EntityFramework\Migrations\20210109123416_Alter_table_aspnetusers_column_pesel2.Designer.cs" />
-  </ItemGroup>
   <ItemGroup>
 
     <PackageReference Include="IdentityModel" Version="4.5.0" />
@@ -37,6 +22,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PublicElections.Domain\PublicElections.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntityFramework\Migrations\" />
   </ItemGroup>
 
 </Project>

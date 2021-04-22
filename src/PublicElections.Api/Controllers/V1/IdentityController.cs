@@ -72,10 +72,7 @@ namespace PublicElections.Api.Controllers.V1
 
             return Ok(new AuthSuccessResponse
             {
-                Token = authResponse.Token,
-                FirstName = authResponse.FirstName,
-                LastName = authResponse.LastName,
-                UserId = authResponse.UserId
+                Token = authResponse.Token
             });
         }
 

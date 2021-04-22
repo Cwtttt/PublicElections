@@ -16,8 +16,14 @@ namespace PublicElections.Infrastructure.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<Participation>(b =>
+            {
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
+
             builder.Entity<Participation>()
-                .HasIndex(p => new { p.ElectionId, p.UserId });
+                .HasKey(p => new { p.ElectionId, p.UserId });
 
             builder.Entity<Vote>()
                 .HasOne(v => v.Election)

@@ -36,7 +36,6 @@ namespace PublicElections.Api
 
             var sqlSettings = Configuration.GetSection("SqlSettings").Get<SqlSettings>();
             services.AddOptions<SqlSettings>().Bind(Configuration.GetSection("SqlSettings"));
-
             services.AddOptions<MailSettings>().Bind(Configuration.GetSection("MailSettings"));
             services.AddOptions<WebSettings>().Bind(Configuration.GetSection("WebSettings"));
             services.AddOptions<AdminSettings>().Bind(Configuration.GetSection("AdminSettings"));
@@ -44,10 +43,7 @@ namespace PublicElections.Api
             services.AddJWT(jwtSettings);
             services.AddSwagger();
             services.AddSqlDb(sqlSettings);
-
             services.AddServices();
-
-            services.AddSignalR();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
