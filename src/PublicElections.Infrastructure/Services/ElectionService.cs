@@ -104,7 +104,7 @@ namespace PublicElections.Infrastructure.Services
                 .Where(v => v.ElectionId == electionId)
                 .ToListAsync();
 
-            electionResult.VotesAmmount = votes.Count;
+            electionResult.VotesAmount = votes.Count;
 
             var candidates = await _context.Candidates
                 .Where(c => c.ElectionId == electionId)
@@ -113,8 +113,10 @@ namespace PublicElections.Infrastructure.Services
             foreach(var candidate in candidates)
             {
                 CandidateVotesResult candidateResult = new CandidateVotesResult();
+
                 candidateResult.CandidateName = candidate.Name;
                 candidateResult.Percentages = votes.GetPercentageOfVotes(candidate.Id);
+                candidateResult.VotesCount = votes.Where(v => v.CandidateId == candidate.Id).Count();
 
                 electionResult.CandidatesResults.Add(candidateResult);
             }

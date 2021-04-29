@@ -160,46 +160,57 @@ namespace PublicElections.Infrastructure.Services
 
         private async Task<AuthenticationResult> GenerateAuthenticationResultForUserAsync(IdentityUser user)
         {
-            ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-
-            var claims = new List<Claim>
+            try
             {
-                new Claim("id", user.Id)
-            };
 
-            var userRoles = await _userManager.GetRolesAsync(appUser);
-            foreach (var userRole in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, userRole));
-                var role = await _roleManager.FindByNameAsync(userRole);
-                if (role == null) continue;
-                var roleClaims = await _roleManager.GetClaimsAsync(role);
+                ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
-                foreach (var roleClaim in roleClaims)
+                var claims = new List<Claim>
                 {
-                    if (claims.Contains(roleClaim))
-                        continue;
+                    new Claim("id", user.Id)
+                };
 
-                    claims.Add(roleClaim);
+                var userRoles = await _userManager.GetRolesAsync(appUser);
+                foreach (var userRole in userRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, userRole));
+                    var role = await _roleManager.FindByNameAsync(userRole);
+                    if (role == null) continue;
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                    foreach (var roleClaim in roleClaims)
+                    {
+                        if (claims.Contains(roleClaim))
+                            continue;
+
+                        claims.Add(roleClaim);
+                    }
                 }
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                return new AuthenticationResult
+                {
+                    Success = true,
+                    Token = tokenHandler.WriteToken(token),
+                };
             }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            catch(Exception  ex)
             {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return new AuthenticationResult
-            {
-                Success = true,
-                Token = tokenHandler.WriteToken(token),
-            };
+                return new AuthenticationResult
+                {
+                    Success = false
+                };
+            }
         }
 
         private string GenerateRandomPassword()
